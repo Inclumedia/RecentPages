@@ -194,6 +194,14 @@ class RecentPages {
             if ( isset ( $retArray ) ) {
                 $numRows = count ( $retArray );
             }
+            $nextArray = array();
+            foreach ( $retArray as $retArrayElement ) {
+                $nextArray[] = array(
+                    'page_namespace' => $retArrayElement->getNamespace(),
+                    'page_title' => $retArrayElement->getText(),
+                    'page_id' => $retArrayElement->getArticleID()
+                );
+            }
         } else {
             $limitArr = array( "ORDER BY" => "page_id desc limit $wgRecentPagesDefaultLimit" );
             if ( isset( $args['limit'] ) ) {
@@ -268,11 +276,14 @@ class RecentPages {
         if ( isset ( $res ) ) {
             $numRows = 0;
             foreach ( $res as $row ) {
-                // TODO: Get rid of this O(n) looped query database inefficiency!
-                $title = Title::newFromText ( $row->page_title, $row->page_namespace );
+                $title = array(
+                    'page_id' => $row->page_id,
+                    'page_namespace' => $row->page_namespace,
+                    'page_title' => $row->page_title
+                );
                 if ( isset ( $args['prop'] ) ) {
                     if ( $row->pp_propname == 'bpd_' . $args['prop'] ) {
-                        $prop[$title->getFullText()] = $parser->recursiveTagParse (
+                        $prop[RecentPages::getFullText( $title )] = $parser->recursiveTagParse (
                             BedellPenDragon::stripRefTags ( $row->pp_value ) );
                         $retArray[] = $title;
                         $numRows++;
@@ -292,7 +303,11 @@ class RecentPages {
 
         }
         if ( $sort ) {
-            usort ( $retArray, 'RecentPages::cmpTitle' );
+            #if ( isset ( $args['random'] ) ) {
+            #    usort ( $retArray, 'RecentPages::cmpTitle' );
+            #} else {
+                usort ( $retArray, 'RecentPages::cmpTitleArray' );
+            #}
         }
         if ( $retArray ) {
             // Handle situations where we're getting a property
@@ -301,7 +316,7 @@ class RecentPages {
                 $numRows = 0;
                 $newRetArray = array();
                 foreach ( $retArray as $retArrayElement ) {
-                    $retArrayElementFullText = $retArrayElement->getFullText();
+                    $retArrayElementFullText = RecentPages::getFullText ( $retArrayElement );
                     $propValue = BedellPenDragon::renderGetBpdProp( $parser,
                         $retArrayElementFullText,
                         $args['prop'], true );
@@ -327,7 +342,7 @@ class RecentPages {
                     $title = $retArray[ $i - 1 ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
-                    $ret .= $bulletChar . $parser->internalParse ( '[[' . $title->getFullText()
+                    $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                         . '|' . $html . ']]' ) . $endChar
                         . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
@@ -337,7 +352,7 @@ class RecentPages {
                     $title = $retArray[ $i ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
-                    $ret .= $bulletChar . $parser->internalParse ( '[[' . $title->getFullText()
+                    $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                         . '|' . $html . ']]' ) . $endChar
                         . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
@@ -347,7 +362,7 @@ class RecentPages {
                     $title = $retArray[ $i ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
-                    $ret .= $bulletChar . $parser->internalParse ( '[[' . $title->getFullText()
+                    $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                         . '|' . $html . ']]' ) . $endChar
                         . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
@@ -360,11 +375,11 @@ class RecentPages {
                     $title = $retArray[ $i - 1 ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
-                        $fullText = $title->getFullText();
-                        $urlEncoded = $title->getPrefixedUrl();
+                        $fullText = RecentPages::getFullText( $title );
+                        $urlEncoded = wfUrlencode ( $fullText );
                         $ret .= $liChar;
                         if ( isset ( $args['stripfromfront'] ) ) {
-                            if ( substr ( $title, 0, strlen ( $args['stripfromfront'] ) ) ==
+                            if ( substr ( $html, 0, strlen ( $args['stripfromfront'] ) ) ==
                                 $args['stripfromfront'] ) {
                                 $html = preg_replace( '/' . $args['stripfromfront'] . '/',
                                     '', $html, 1 );
@@ -409,7 +424,7 @@ class RecentPages {
                     $title = $retArray[ $i - 1 ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
-                        $ret .= $bulletChar . $parser->internalParse ( '[[' . $title->getFullText()
+                        $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                             . '|' . $html . ']]' ) . $endChar
                             . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
@@ -419,7 +434,7 @@ class RecentPages {
                     $title = $retArray[ $i ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
-                        $ret .= $bulletChar . $parser->internalParse ( '[[' . $title->getFullText()
+                        $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                             . '|' . $html . ']]' ) . $endChar
                             . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
@@ -442,7 +457,7 @@ class RecentPages {
     }
 
     public static function getDisplayTitle ( $title, $args, $displayTitles ) {
-        $id = $title->getArticleID();
+        $id = $title['page_id'];
         if ( !isset ( $args['random'] ) ) {
             if ( isset( $displayTitles[$id] ) ) {
                 return $displayTitles[$id];
@@ -455,7 +470,7 @@ class RecentPages {
                 return $row->pp_value;
             }
         }
-        return $title->getFullText();
+        return RecentPages::getFullText ( $title );
     }
 
     // Get some random pages
@@ -465,8 +480,21 @@ class RecentPages {
     }
 
     // Alphabetize arrays of titles
+    public static function cmpTitleArray ( $a, $b ) {
+        return strcmp ( RecentPages::getFullText ( $a ), RecentPages::getFullText ( $b ) );
+    }
+
     public static function cmpTitle ( $a, $b ) {
-        return strcmp ( $a->getPrefixedText(), $b->getPrefixedText() );
+        return strcmp ( $a->getPrefixedText(), $b->getPrefixedText );
+    }
+
+    public static function getFullText( $title ) {
+        $namespaces = MWNamespace::getCanonicalNamespaces();
+        $output = '';
+        if ( $title['page_namespace'] != 0 ) {
+            $output = $namespaces[$title['page_namespace']] . ':';
+        }
+        return $output . str_replace('_', ' ', $title['page_title'] );
     }
 }
 
