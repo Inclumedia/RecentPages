@@ -15,7 +15,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-define( 'RP_VERSION', '0.1.8, 2014-01-18' );
+define( 'RP_VERSION', '0.1.9, 2014-01-19' );
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['parserhook'][] = array(
@@ -202,6 +202,7 @@ class RecentPages {
                     'page_id' => $retArrayElement->getArticleID()
                 );
             }
+            $retArray = $nextArray;
         } else {
             $limitArr = array( "ORDER BY" => "page_id desc limit $wgRecentPagesDefaultLimit" );
             if ( isset( $args['limit'] ) ) {
@@ -289,8 +290,10 @@ class RecentPages {
                         $numRows++;
                     }
                 } else {
-                    $retArray[] = $title;
-                    $numRows++;
+                    if ( !in_array( $title, $retArray ) ) {
+                        $retArray[] = $title;
+                        $numRows++;
+                    }
                 }
                 if ( $row->pp_propname == 'displaytitle' ) {
                     $displayTitles[$row->page_id] = $row->pp_value;
