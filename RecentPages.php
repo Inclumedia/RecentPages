@@ -1,29 +1,35 @@
 <?php
 /**
- * RecentPages
+ * RecentPages extension - Provides a parser hook to list recently created
+ * or random pages
+ * 
+ * @version 0.1.10 - 2014-01-22
+ * 
+ * @link https://www.mediawiki.org/wiki/Extension:RecentPages Documentation
+ * @link https://www.mediawiki.org/wiki/Extension_talk:RecentPages Support
+ * @link https://github.com/leucosticte/RecentPages Source code
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * http://www.gnu.org/copyleft/gpl.html
+ * @author Nathon Larson (Leucosticte)
+ * @copyright (C) 2013 Nathan Larson (Leucosticte)
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
-define( 'RP_VERSION', '0.1.9, 2014-01-19' );
+// Prevent direct calls
+if ( !defined( 'MEDIAWIKI' ) ) {
+        die( 'This file is a MediaWiki extension, it is not a valid entry point' );
+}
+
+// Version of the extension
+define( 'RP_VERSION', '0.1.10' );
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['parserhook'][] = array(
+    'path' => __FILE__,
     'name' => 'Recently Created Page List',
-    'url' => 'http://www.mediawiki.org/wiki/Extension:Recent_Pages',
+    'url' => 'https://www.mediawiki.org/wiki/Extension:Recent_Pages',
     'version' => RP_VERSION,
     'author' => 'Nathan Larson',
-    'description' => 'Parser hook to list recently created or random pages'
+    'descriptionmsg' => 'rp-desc'
 );
 
 // Minimum page length of a randomly-selected article
@@ -36,6 +42,9 @@ $wgRecentPagesMaxAttempts = 1000;
 $wgRecentPagesDisableOtherNamespaces = true;
 // Shall we sort by default?
 $wgRecentPagesDefaultSort = false;
+
+// Paths to files
+$wgExtensionMessagesFiles['RecentPages'] = __DIR__ . '/RecentPages.i18n.php';
 
 // Avoid unstubbing $wgParser on setHook() too early on modern (1.12+) MW versions, as
 // per r35980
