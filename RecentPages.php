@@ -20,7 +20,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 // Version of the extension
-define( 'RP_VERSION', '0.1.10' );
+define( 'RP_VERSION', '0.1.11' );
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['parserhook'][] = array(
@@ -33,7 +33,7 @@ $wgExtensionCredits['parserhook'][] = array(
 );
 
 // Minimum page length of a randomly-selected article
-$wgRecentPagesDefaultMinimumLength = 600;
+$wgRecentPagesDefaultMinimumLength = 300;
 // Default number of articles to pull back
 $wgRecentPagesDefaultLimit = 6;
 // Maximum number of attempts to get a unique random article
