@@ -29,7 +29,7 @@ $wgExtensionCredits['parserhook'][] = array(
     'url' => 'https://www.mediawiki.org/wiki/Extension:Recent_Pages',
     'version' => RP_VERSION,
     'author' => 'Nathan Larson',
-    'descriptionmsg' => 'rp-desc'
+    'descriptionmsg' => 'recentpages-desc'
 );
 
 // Minimum page length of a randomly-selected article
