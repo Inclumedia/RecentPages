@@ -3,7 +3,7 @@
  * RecentPages extension - Provides a parser hook to list recently created
  * or random pages
  * 
- * @version 0.1.10 - 2014-01-22
+ * @version 0.1.12 - 2014-04-21
  * 
  * @link https://www.mediawiki.org/wiki/Extension:RecentPages Documentation
  * @link https://www.mediawiki.org/wiki/Extension_talk:RecentPages Support
@@ -20,7 +20,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 // Version of the extension
-define( 'RP_VERSION', '0.1.11' );
+define( 'RP_VERSION', '0.1.12' );
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['parserhook'][] = array(
@@ -33,7 +33,7 @@ $wgExtensionCredits['parserhook'][] = array(
 );
 
 // Minimum page length of a randomly-selected article
-$wgRecentPagesDefaultMinimumLength = 300;
+$wgRecentPagesDefaultMinimumLength = 0;
 // Default number of articles to pull back
 $wgRecentPagesDefaultLimit = 6;
 // Maximum number of attempts to get a unique random article
@@ -224,9 +224,10 @@ class RecentPages {
             if ( isset( $args['namespace'] ) ) {
                 switch ( $args['namespace'] ) {
                     case 'all':
-                        $where = array ( "page_is_redirect" => 0,
-                            "page_len>{$minimum}",
-                        );
+                        $where = array ( "page_is_redirect" => 0 );
+                        if ( $minimum > 0 ) {
+                            $where[] = "page_len>{$minimum}";
+                        }
                         break;
                     case 'content':
                         $where = "page_is_redirect=0 AND (";
@@ -239,22 +240,28 @@ class RecentPages {
                             $where .= "page_namespace = $thisNameSpace";
                         }
                         $where .= ")";
-                        $where .= " AND page_len>{$minimum}";
+                        if ( $minimum > 0 ) {
+                                $where .= " AND page_len>{$minimum}";
+                        }
                         break;
                     default:
                         $where = array (
                             "page_namespace" => RecentPages::rpGetNSID( $args['namespace'] ),
-                            "page_is_redirect" => 0,
-                            "page_len>{$minimum}",
+                            "page_is_redirect" => 0
                         );
+                        if ( $minimum > 0 ) {
+                            $where[] = "page_len>{$minimum}";
+                        }
                         break;
                 }
             } else {
                 $where = array (
                     "page_namespace" => 0,
-                    "page_is_redirect" => 0,
-                    "page_len>{$minimum}",
+                    "page_is_redirect" => 0
                 );
+                if ( $minimum > 0 ) {
+                        $where[] = "page_len>{$minimum}";
+                }
             }
             $tables = array( 'page', 'page_props' );
             $fields = array( 'page_id', 'page_title', 'page_namespace', 'pp_page', 'pp_propname',
