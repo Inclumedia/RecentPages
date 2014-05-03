@@ -20,7 +20,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 // Version of the extension
-define( 'RP_VERSION', '0.1.12' );
+define( 'RP_VERSION', '0.1.13' );
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['parserhook'][] = array(
@@ -119,6 +119,10 @@ class RecentPages {
         if ( isset ( $args['parsedendchar'] ) ) {
             $parsedEndChar = $args['parsedendchar'];
         }
+        $excludeCat = "";
+        if ( isset ( $args['excludecat'] ) ) {
+            $excludeCat = $args['excludecat'];
+        }
         // "minimum" is the minimum page length
         $minimum = $wgRecentPagesDefaultMinimumLength;
         if ( isset( $args['minimum'] ) ) {
@@ -129,6 +133,7 @@ class RecentPages {
         $prop = array();
         $displayTitles = array();
         // "maxresults" is what to limit the results to
+        $maxResults = $limit;
         if ( isset ( $wgBedellPenDragonResident ) ) {
             if ( !isset ( $args['maxresults'] ) ) {
                 $maxResults = $limit;
@@ -291,31 +296,41 @@ class RecentPages {
         }
 
         if ( isset ( $res ) ) {
+                $excludeThesePageIds = array();
+                if ( $excludeCat ) {
+                        $category = Category::newFromName( $excludeCat );
+                        $categoryMembers = $category->getMembers();
+                        foreach( $categoryMembers as $categoryMember ) {
+                                $excludeThesePageIds[] = $categoryMember->getArticleID();
+                        }
+                }
             $numRows = 0;
             foreach ( $res as $row ) {
-                $title = array(
-                    'page_id' => $row->page_id,
-                    'page_namespace' => $row->page_namespace,
-                    'page_title' => $row->page_title
-                );
-                if ( isset ( $args['prop'] ) ) {
-                    if ( $row->pp_propname == 'bpd_' . $args['prop'] ) {
-                        $prop[RecentPages::getFullText( $title )] = $parser->recursiveTagParse (
-                            BedellPenDragon::stripRefTags ( $row->pp_value ) );
-                        $retArray[] = $title;
-                        $numRows++;
-                    }
-                } else {
-                    if ( !in_array( $title, $retArray ) ) {
-                        $retArray[] = $title;
-                        $numRows++;
-                    }
-                }
-                if ( $row->pp_propname == 'displaytitle' ) {
-                    $displayTitles[$row->page_id] = $row->pp_value;
-                }
-                if ( $numRows == $maxResults ) {
-                        break;
+                if( !in_array( $row->page_id, $excludeThesePageIds ) ) {
+                        $title = array(
+                            'page_id' => $row->page_id,
+                            'page_namespace' => $row->page_namespace,
+                            'page_title' => $row->page_title
+                        );
+                        if ( isset ( $args['prop'] ) ) {
+                            if ( $row->pp_propname == 'bpd_' . $args['prop'] ) {
+                                $prop[RecentPages::getFullText( $title )] = $parser->recursiveTagParse (
+                                    BedellPenDragon::stripRefTags ( $row->pp_value ) );
+                                $retArray[] = $title;
+                                $numRows++;
+                            }
+                        } else {
+                            if ( !in_array( $title, $retArray ) ) {
+                                $retArray[] = $title;
+                                $numRows++;
+                            }
+                        }
+                        if ( $row->pp_propname == 'displaytitle' ) {
+                            $displayTitles[$row->page_id] = $row->pp_value;
+                        }
+                        if ( $numRows == $maxResults ) {
+                                break;
+                        }
                 }
             }
             #$args['random'] = true;
