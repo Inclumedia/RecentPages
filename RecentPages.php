@@ -3,7 +3,7 @@
  * RecentPages extension - Provides a parser hook to list recently created
  * or random pages
  * 
- * @version 0.1.12 - 2014-04-21
+ * @version 0.1.14 - 2014-07-19
  * 
  * @link https://www.mediawiki.org/wiki/Extension:RecentPages Documentation
  * @link https://www.mediawiki.org/wiki/Extension_talk:RecentPages Support
@@ -20,7 +20,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 }
 
 // Version of the extension
-define( 'RP_VERSION', '0.1.13' );
+define( 'RP_VERSION', '0.1.14' );
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['parserhook'][] = array(
@@ -376,6 +376,7 @@ class RecentPages {
                     $title = $retArray[ $i - 1 ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
+                        $fullText = RecentPages::getFullText( $title );
                     $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                         . '|' . $html . ']]' ) . $endChar
                         . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
@@ -386,6 +387,7 @@ class RecentPages {
                     $title = $retArray[ $i ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
+                        $fullText = RecentPages::getFullText( $title );
                     $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                         . '|' . $html . ']]' ) . $endChar
                         . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
@@ -396,6 +398,7 @@ class RecentPages {
                     $title = $retArray[ $i ];
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
+                        $fullText = RecentPages::getFullText( $title );
                     $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
                         . '|' . $html . ']]' ) . $endChar
                         . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
