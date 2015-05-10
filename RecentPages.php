@@ -462,7 +462,7 @@ class RecentPages {
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
                         $fullText = RecentPages::getFullText( $title );
-                        $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
+                        $ret .= $bulletChar . $parser->internalParse ( '[[' . $fullText
                             . '|' . $html . ']]' ) . $endChar
                             . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
@@ -473,7 +473,7 @@ class RecentPages {
                     if ( !is_null( $title ) ) {
                         $html = RecentPages::getDisplayTitle ( $title, $args, $displayTitles );
                         $fullText = RecentPages::getFullText( $title );
-                        $ret .= $bulletChar . $parser->internalParse ( '[[' . RecentPages::getFullText ( $title )
+                        $ret .= $bulletChar . $parser->internalParse ( '[[' . $fullText
                             . '|' . $html . ']]' ) . $endChar
                             . $parser->internalParse( str_replace ( '$1', $fullText, $parsedEndChar ) );
                     }
