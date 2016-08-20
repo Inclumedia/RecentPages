@@ -76,8 +76,6 @@ class RecentPages {
         # Prevent caching
         $parser->disableCache();
 
-        $skin = $wgUser->getSkin();
-
         $ret = "";
 
         $sort = $wgRecentPagesDefaultSort;
